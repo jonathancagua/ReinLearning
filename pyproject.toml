@@ -12,6 +12,7 @@ numpy = "^1.26.0"
 tensorflow = "^2.15.0"
 gym = {extras = ["classic-control"], version = "^0.26.2"}
 tqdm = "^4.67.1"
+matplotlib = "^3.10.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0"
