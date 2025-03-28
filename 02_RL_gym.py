@@ -1,6 +1,7 @@
 import gym
 import numpy as np
 import random
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 # Crear entorno
@@ -60,8 +61,33 @@ for episodio in tqdm(range(episodios)):
     if episodio % 100 == 0:
         print(f"Episodio {episodio} - Recompensa Promedio: {np.mean(recompensas_totales[-100:]):.2f}, Epsilon: {epsilon:.3f}")
 
-    # Renderizar el entorno cada 500 episodios
-    if episodio % 500 == 0:
-        env.render()
+# Gráfica de recompensas
+plt.plot(np.convolve(recompensas_totales, np.ones(100) / 100, mode='valid'))
+plt.title("Recompensa Promedio por Bloque de Episodios")
+plt.xlabel("Episodios")
+plt.ylabel("Recompensa Promedio")
+plt.show()
 
-env.close()
+# Evaluación después del entrenamiento
+episodios_prueba = 10
+recompensas_prueba = []
+
+for episodio in range(episodios_prueba):
+    estado, _ = env.reset()
+    estado = discretizar(estado)
+    done = False
+    recompensa_total = 0
+
+    while not done:
+        # Usar siempre la mejor acción (política entrenada)
+        accion = np.argmax(q_table[estado])
+        nuevo_estado, recompensa, done, _, _ = env.step(accion)
+        nuevo_estado = discretizar(nuevo_estado)
+        estado = nuevo_estado
+        recompensa_total += recompensa
+
+    recompensas_prueba.append(recompensa_total)
+    print(f"Episodio de Prueba {episodio + 1}: Recompensa = {recompensa_total}")
+
+print(f"\nRecompensa Promedio en Evaluación: {np.mean(recompensas_prueba):.2f}")
+
