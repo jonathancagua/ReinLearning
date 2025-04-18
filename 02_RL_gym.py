@@ -8,16 +8,19 @@ from tqdm import tqdm
 # Crear entorno con modo compatible para capturar frames
 env = gym.make("MountainCar-v0", render_mode="rgb_array")  
 
-# Función para discretizar estados
-def discretizar(estado, bins=20):
+# Definir número de bins como variable
+num_bins = 40
+
+# Función para discretizar estados usando la variable
+def discretizar(estado, bins=num_bins):
     escala = (estado - env.observation_space.low) / (env.observation_space.high - env.observation_space.low)
     return tuple(np.clip((escala * bins).astype(np.int32), 0, bins - 1))
 
-# Inicializar la Q-Table con valores aleatorios
-q_table = np.random.uniform(low=-1, high=1, size=[20, 20, env.action_space.n])
+# Inicializar la Q-Table con la variable
+q_table = np.random.uniform(low=-1, high=1, size=[num_bins, num_bins, env.action_space.n])
 
 # Hiperparámetros
-alpha = 0.1  # Tasa de aprendizaje
+alpha = 0.02  # Tasa de aprendizaje
 gamma = 0.95  # Factor de descuento
 epsilon = 1.0  # Probabilidad de exploración inicial
 epsilon_min = 0.01  # Valor mínimo de epsilon
