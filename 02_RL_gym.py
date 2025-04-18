@@ -2,10 +2,11 @@ import gymnasium as gym
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+from matplotlib import animation  
 from tqdm import tqdm
 
-# Crear entorno
-env = gym.make("MountainCar-v0")
+# Crear entorno con modo compatible para capturar frames
+env = gym.make("MountainCar-v0", render_mode="rgb_array")  
 
 # Función para discretizar estados
 def discretizar(estado, bins=20):
@@ -71,6 +72,7 @@ plt.show()
 # Evaluación después del entrenamiento
 episodios_prueba = 10
 recompensas_prueba = []
+frames = []  
 
 for episodio in range(episodios_prueba):
     estado, _ = env.reset()
@@ -79,15 +81,28 @@ for episodio in range(episodios_prueba):
     recompensa_total = 0
 
     while not done:
-        # Usar siempre la mejor acción (política entrenada)
         accion = np.argmax(q_table[estado])
         nuevo_estado, recompensa, done, _, _ = env.step(accion)
         nuevo_estado = discretizar(nuevo_estado)
         estado = nuevo_estado
         recompensa_total += recompensa
 
+        if episodio == episodios_prueba - 1:  
+            frame = env.render()
+            frames.append(frame)
+
     recompensas_prueba.append(recompensa_total)
     print(f"Episodio de Prueba {episodio + 1}: Recompensa = {recompensa_total}")
 
 print(f"\nRecompensa Promedio en Evaluación: {np.mean(recompensas_prueba):.2f}")
 
+fig = plt.figure()
+img = plt.imshow(frames[0])
+
+def animate(i):
+    img.set_data(frames[i])
+    return [img]
+
+ani = animation.FuncAnimation(fig, animate, frames=len(frames), interval=40, blit=True)
+ani.save("mountaincar.gif", writer="pillow", fps=25)
+plt.close()
