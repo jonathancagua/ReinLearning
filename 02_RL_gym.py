@@ -46,7 +46,12 @@ for episodio in tqdm(range(episodios)):
         nuevo_estado = discretizar(nuevo_estado)
 
         # Actualizar Q-Table usando la ecuación de Bellman
-        q_table[estado][accion] += alpha * (recompensa + gamma * np.max(q_table[nuevo_estado]) - q_table[estado][accion])
+        if done:
+            valor_futuro = 0
+        else:
+            valor_futuro = np.max(q_table[nuevo_estado])
+
+        q_table[estado][accion] += alpha * (recompensa + gamma * valor_futuro - q_table[estado][accion])
 
         # Actualizar estado
         estado = nuevo_estado
